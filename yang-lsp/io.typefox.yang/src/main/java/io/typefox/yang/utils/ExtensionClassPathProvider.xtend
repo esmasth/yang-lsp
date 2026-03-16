@@ -31,7 +31,11 @@ class ExtensionClassPathProvider {
 		if (adapter.classpath != classpath) {
 			val conf = projectConfigProvider.getProjectConfig(resource.resourceSet)
 			val urls = Splitter.on(":").split(classpath).map[
+				if (it.startsWith("/") || it.startsWith("file:")) {
+					new URL(if (it.startsWith("file:")) it else "file:" + it)
+				} else {
 					new URL(conf.path.appendSegment(it).toString)
+				}
 			].toList.toArray(newArrayOfSize(0))
 			
 			adapter.classLoader = new URLClassLoader(urls)
