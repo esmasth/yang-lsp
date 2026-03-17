@@ -22,7 +22,10 @@ import org.eclipse.xtext.validation.SeverityConverter
 			severityConverter) {
 			override Severity getSeverity(String code) {
 				val key = configurableIssueCodes.get(code)
-				val value = preferenceValues.getPreference(new PreferenceKey('diagnostic.'+code, key?.defaultValue ?: 'error'))
+				val defaultSeverity = key?.defaultValue
+				val prefKey = new PreferenceKey('diagnostic.'+code, defaultSeverity ?: '')
+				val value = preferenceValues.getPreference(prefKey)
+				if (value.nullOrEmpty) return null
 				try {
 					return severityConverter.stringToSeverity(value)
 				} catch (IllegalArgumentException e) {
