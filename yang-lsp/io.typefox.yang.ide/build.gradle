@@ -11,7 +11,7 @@ dependencies {
 	testImplementation "org.eclipse.xtext:org.eclipse.xtext.testing:${versions.xtext}"
 }
 
-mainClassName = 'org.eclipse.xtext.ide.server.ServerLauncher'
+mainClassName = 'io.typefox.yang.ide.server.YangServerLauncher'
 applicationName = 'yang-language-server'
 
 test {
