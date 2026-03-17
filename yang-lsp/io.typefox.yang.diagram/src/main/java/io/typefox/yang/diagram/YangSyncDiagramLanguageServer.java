@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.SemanticTokens;
 import org.eclipse.lsp4j.SemanticTokensParams;
@@ -14,6 +15,7 @@ import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculat
 import org.eclipse.xtext.ide.server.Document;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;
+import org.eclipse.xtext.validation.Issue;
 
 import com.google.inject.Inject;
 
@@ -30,6 +32,13 @@ public class YangSyncDiagramLanguageServer extends SyncDiagramLanguageServer {
 	YangAdditionalServerCapabilities serverAdditions;
 	@Inject
 	YangSemanticTokensProvider semantikTokens;
+
+	@Override
+	protected Diagnostic toDiagnostic(Issue issue) {
+		Diagnostic diagnostic = super.toDiagnostic(issue);
+		diagnostic.setSource("yang-lsp");
+		return diagnostic;
+	}
 
 	@Override
 	protected ServerCapabilities createServerCapabilities(InitializeParams params) {
