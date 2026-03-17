@@ -13,15 +13,16 @@ class IssueFactory {
 	static def Issue createIssue(EObject obj, EStructuralFeature feature, Severity severity, String message, String code) {
 		val nodes = NodeModelUtils.findNodesForFeature(obj, feature)
 		val node = nodes.head
+		val lastNode = nodes.last
 		val startOffset = node.offset
-		val totalLength = nodes.map[length].reduce[p1, p2| p1 + p2]
+		val endOffset = lastNode.offset + lastNode.length
 		val lineAndColumn = NodeModelUtils.getLineAndColumn(node, startOffset)
-		val endLineAndColumn = NodeModelUtils.getLineAndColumn(node, startOffset + totalLength)
+		val endLineAndColumn = NodeModelUtils.getLineAndColumn(lastNode, endOffset)
 		val result = new IssueImpl
 		result.message = message
 		result.code = code
 		result.offset = startOffset
-		result.length = totalLength
+		result.length = endOffset - startOffset
 		result.lineNumber = lineAndColumn.line
 		result.column = lineAndColumn.column
 		result.lineNumberEnd = endLineAndColumn.line
