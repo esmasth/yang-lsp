@@ -1,7 +1,5 @@
 package io.typefox.yang.ide.codeAction
 
-import com.google.inject.Inject
-import io.typefox.yang.settings.PreferenceValuesProvider
 import io.typefox.yang.validation.IssueCodes
 import org.eclipse.emf.common.util.URI
 import org.eclipse.lsp4j.Command
@@ -9,20 +7,12 @@ import org.eclipse.lsp4j.TextEdit
 import org.eclipse.lsp4j.WorkspaceEdit
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.xtext.ide.server.codeActions.ICodeActionService2
-import org.eclipse.xtext.preferences.PreferenceKey
 
 class CodeActionService implements ICodeActionService2 {
 	
 	static val COMMAND_ID = 'yang.apply.workspaceEdit'
-	public static val CODE_ACTIONS_ENABLED = new PreferenceKey('code-actions', 'on')
-	
-	@Inject PreferenceValuesProvider preferenceProvider
 	
 	override getCodeActions(Options options) {
-		val enabled = if (preferenceProvider !== null) preferenceProvider.getPreferenceValues(options.resource).getPreference(CODE_ACTIONS_ENABLED) else "on"
-		if (!"on".equals(enabled)) {
-			return emptyList
-		}
 		val result = <Command>newArrayList
 		for (d : options.codeActionParams.context.diagnostics) {
 			if (d.code.getLeft() == IssueCodes.INCORRECT_VERSION) {

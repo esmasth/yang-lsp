@@ -8,25 +8,16 @@ import org.eclipse.xtext.formatting.IIndentationInformation
 import org.eclipse.xtext.ide.server.Document
 import org.eclipse.xtext.ide.server.formatting.FormattingService
 import org.eclipse.xtext.preferences.MapBasedPreferenceValues
-import org.eclipse.xtext.preferences.PreferenceKey
 import org.eclipse.xtext.resource.XtextResource
 import org.eclipse.xtext.util.TextRegion
 import com.google.common.base.Strings
 import org.eclipse.xtext.formatting2.FormatterPreferenceKeys
-import io.typefox.yang.settings.PreferenceValuesProvider
 
 class YangFormattingService extends FormattingService {
 	
-	public static val FORMATTING_ENABLED = new PreferenceKey('formatting', 'on')
-	
 	@Inject IIndentationInformation indentationInformation
-	@Inject PreferenceValuesProvider preferenceProvider
 	
 	override List<TextEdit> format(XtextResource resource, Document document, int offset, int length, FormattingOptions options) {
-		val enabled = preferenceProvider.getPreferenceValues(resource).getPreference(FORMATTING_ENABLED)
-		if (!"on".equals(enabled)) {
-			return emptyList
-		}
 		var indent = indentationInformation.indentString
 		if (options !== null) {
 			if (options.insertSpaces) {
