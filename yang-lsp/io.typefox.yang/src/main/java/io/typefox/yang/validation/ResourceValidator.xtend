@@ -2,6 +2,7 @@ package io.typefox.yang.validation
 
 import com.google.inject.Inject
 import io.typefox.yang.scoping.ScopeContextProvider
+import io.typefox.yang.settings.PreferenceValuesProvider
 import io.typefox.yang.utils.ExtensionProvider
 import io.typefox.yang.yang.AbstractModule
 import java.util.List
@@ -25,15 +26,21 @@ class ResourceValidator extends ResourceValidatorImpl {
 	@Inject ExtensionProvider extensionProvider
 	@Inject OperationCanceledManager operationCanceledManager
 	@Inject IssueSeveritiesProvider issueSeveritiesProvider
+	@Inject PreferenceValuesProvider preferenceProvider
+	
+	public static val VALIDATORS = new PreferenceKey('extension.validators', '')
+	public static val VALIDATION_ENABLED = new PreferenceKey('validation', 'on')
 	
 	override validate(Resource resource, CheckMode mode, CancelIndicator mon) throws OperationCanceledError {
+		val enabled = preferenceProvider.getPreferenceValues(resource).getPreference(VALIDATION_ENABLED)
+		if (!"on".equals(enabled)) {
+			return emptyList
+		}
 		for (m : resource.contents.filter(AbstractModule)) {		
 			ctxProvider.getScopeContext(m).resolveAll
 		}
 		super.validate(resource, mode, mon)
 	}
-	
-	public static val VALIDATORS = new PreferenceKey('extension.validators', '')
 	
 	override protected validate(Resource resource, CheckMode mode, CancelIndicator monitor, IAcceptor<Issue> acceptor) {
 		val validators = extensionProvider.getMergedExtensions(VALIDATORS, resource, IValidatorExtension)
