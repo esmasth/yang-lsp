@@ -19,7 +19,7 @@ class CodeActionService implements ICodeActionService2 {
 	@Inject PreferenceValuesProvider preferenceProvider
 	
 	override getCodeActions(Options options) {
-		val enabled = preferenceProvider.getPreferenceValues(options.resource).getPreference(CODE_ACTIONS_ENABLED)
+		val enabled = if (preferenceProvider !== null) preferenceProvider.getPreferenceValues(options.resource).getPreference(CODE_ACTIONS_ENABLED) else "on"
 		if (!"on".equals(enabled)) {
 			return emptyList
 		}

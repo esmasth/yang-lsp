@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.sprotty.xtext.ls.SyncDiagramLanguageServer;
 import org.eclipse.xtext.ide.editor.syntaxcoloring.ISemanticHighlightingCalculator;
 import org.eclipse.xtext.ide.server.Document;
+import org.eclipse.xtext.preferences.IPreferenceValues;
 import org.eclipse.xtext.preferences.PreferenceKey;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.util.CancelIndicator;
@@ -54,12 +55,12 @@ public class YangSyncDiagramLanguageServer extends SyncDiagramLanguageServer {
 	YangAdditionalServerCapabilities serverAdditions;
 	@Inject
 	YangSemanticTokensProvider semantikTokens;
-	@Inject
-	PreferenceValuesProvider preferenceProvider;
 
 	private boolean isEnabled(URI uri, PreferenceKey key) {
-		return "on".equals(getWorkspaceManager().doRead(uri, (doc, resource) ->
-			preferenceProvider.getPreferenceValues(resource).getPreference(key)));
+		return "on".equals(getWorkspaceManager().doRead(uri, (doc, resource) -> {
+			PreferenceValuesProvider provider = resource.getResourceServiceProvider().get(PreferenceValuesProvider.class);
+			return provider.getPreferenceValues(resource).getPreference(key);
+		}));
 	}
 
 	@Override
@@ -73,6 +74,18 @@ public class YangSyncDiagramLanguageServer extends SyncDiagramLanguageServer {
 	protected ServerCapabilities createServerCapabilities(InitializeParams params) {
 		ServerCapabilities capabilities = super.createServerCapabilities(params);
 		serverAdditions.addAdditionalServerCapabilities(capabilities, params);
+		IPreferenceValues prefs = PreferenceValuesProvider.createPreferenceValues(null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.COMPLETION)))        capabilities.setCompletionProvider(null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.HOVER)))             capabilities.setHoverProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.DEFINITION)))        capabilities.setDefinitionProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.REFERENCES)))        capabilities.setReferencesProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.DOCUMENT_SYMBOLS)))  capabilities.setDocumentSymbolProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.DOCUMENT_HIGHLIGHT))) capabilities.setDocumentHighlightProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.RENAME)))            capabilities.setRenameProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.CODE_ACTIONS)))      capabilities.setCodeActionProvider((Boolean) null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.CODE_LENSES)))       capabilities.setCodeLensProvider(null);
+		if (!"on".equals(prefs.getPreference(YangFeatureToggleKeys.FORMATTING)))        { capabilities.setDocumentFormattingProvider((Boolean) null); capabilities.setDocumentRangeFormattingProvider((Boolean) null); }
+		if (!"on".equals(prefs.getPreference(SEMANTIC_TOKENS_ENABLED)))                 capabilities.setSemanticTokensProvider(null);
 		return capabilities;
 	}
 
@@ -83,7 +96,8 @@ public class YangSyncDiagramLanguageServer extends SyncDiagramLanguageServer {
 	private SemanticTokens semanticTokensCompute(SemanticTokensParams params, CancelIndicator cancelIndicator) {
 		URI uri = getURI(params.getTextDocument());
 		return getWorkspaceManager().doRead(uri, (final Document doc, final XtextResource resource) -> {
-			String enabled = preferenceProvider.getPreferenceValues(resource).getPreference(SEMANTIC_TOKENS_ENABLED);
+			PreferenceValuesProvider provider = resource.getResourceServiceProvider().get(PreferenceValuesProvider.class);
+			String enabled = provider.getPreferenceValues(resource).getPreference(SEMANTIC_TOKENS_ENABLED);
 			if (!"on".equals(enabled)) {
 				return EMPTY_SEMANTIC_TOKENS;
 			}
@@ -108,7 +122,7 @@ public class YangSyncDiagramLanguageServer extends SyncDiagramLanguageServer {
 	@Override
 	protected Hover hover(HoverParams params, CancelIndicator cancelIndicator) {
 		if (!isEnabled(getURI(params), YangFeatureToggleKeys.HOVER)) {
-			return new Hover();
+			return null;
 		}
 		return super.hover(params, cancelIndicator);
 	}

@@ -25,7 +25,7 @@ class CodeLensService implements ICodeLensService {
 	@Inject PreferenceValuesProvider preferenceProvider
 	
 	override computeCodeLenses(Document document, XtextResource resource, CodeLensParams params, CancelIndicator indicator) {
-		val enabled = preferenceProvider.getPreferenceValues(resource).getPreference(CODE_LENS_ENABLED)
+		val enabled = if (preferenceProvider !== null) preferenceProvider.getPreferenceValues(resource).getPreference(CODE_LENS_ENABLED) else "on"
 		if (!enabled.equals("on")) {
 			return emptyList
 		}

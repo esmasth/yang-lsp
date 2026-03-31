@@ -10,4 +10,7 @@ public class YangFeatureToggleKeys {
 	public static final PreferenceKey DOCUMENT_SYMBOLS = new PreferenceKey("document-symbols", "on");
 	public static final PreferenceKey DOCUMENT_HIGHLIGHT = new PreferenceKey("document-highlight", "on");
 	public static final PreferenceKey RENAME = new PreferenceKey("rename", "on");
+	public static final PreferenceKey CODE_ACTIONS = new PreferenceKey("code-actions", "on");
+	public static final PreferenceKey CODE_LENSES = new PreferenceKey("code-lenses", "on");
+	public static final PreferenceKey FORMATTING = new PreferenceKey("formatting", "on");
 }
