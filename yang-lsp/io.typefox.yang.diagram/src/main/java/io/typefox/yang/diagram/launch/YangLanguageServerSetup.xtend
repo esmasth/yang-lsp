@@ -13,6 +13,7 @@ import io.typefox.yang.diagram.YangDiagramModule
 import io.typefox.yang.ide.YangIdeModule
 import io.typefox.yang.ide.YangIdeSetup
 import io.typefox.yang.ide.server.YangProjectManager
+import io.typefox.yang.settings.PreferenceValuesProvider
 import java.util.logging.LogManager
 import org.eclipse.elk.alg.layered.options.LayeredMetaDataProvider
 import org.eclipse.elk.core.util.persistence.ElkGraphResourceFactory
@@ -32,6 +33,7 @@ class YangLanguageServerSetup extends DiagramLanguageServerSetup {
 				this.getClass().getClassLoader().getResourceAsStream('server_logging.properties'));
 		} catch (Throwable ex) {
 		}
+		loadExtraValidators()
 		// Initialize ELK
 		ElkLayoutEngine.initialize(new LayeredMetaDataProvider)
 		Resource.Factory.Registry.INSTANCE.extensionToFactoryMap.put('elkg', new ElkGraphResourceFactory)
@@ -53,6 +55,18 @@ class YangLanguageServerSetup extends DiagramLanguageServerSetup {
 				bind(ProjectManager).to(YangProjectManager)
 			]
 		) 
+	}
+	
+	private def void loadExtraValidators() {
+		val validators = System.getProperty('yang.extra.validators')
+		if (validators !== null && !validators.isEmpty) {
+			val existing = PreferenceValuesProvider.constantSettings.get('extension.validators')
+			if (existing !== null && !existing.isEmpty) {
+				PreferenceValuesProvider.constantSettings.put('extension.validators', existing + ':' + validators)
+			} else {
+				PreferenceValuesProvider.constantSettings.put('extension.validators', validators)
+			}
+		}
 	}
 	
 }

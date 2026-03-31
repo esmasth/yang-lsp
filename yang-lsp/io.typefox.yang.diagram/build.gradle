@@ -23,3 +23,18 @@ mainClassName = 'io.typefox.yang.diagram.launch.YangServerLauncher'
 applicationName = 'yang-language-server'
 ext.applicationQualifier = 'diagram-extension'
 // applicationDefaultJvmArgs = ['-agentlib:jdwp=transport=dt_socket,address=localhost:8787,server=y,suspend=n,quiet=y']
+
+startScripts {
+	doLast {
+		// Append YANG_LANGUAGE_SERVER_EXTRA_CLASSPATH to classpath in Unix script
+		unixScript.text = unixScript.text.replace(
+			'eval set -- $DEFAULT_JVM_OPTS',
+			'if [ -n "$YANG_LANGUAGE_SERVER_EXTRA_CLASSPATH" ] ; then\n    CLASSPATH="$CLASSPATH:$YANG_LANGUAGE_SERVER_EXTRA_CLASSPATH"\nfi\n\neval set -- $DEFAULT_JVM_OPTS'
+		)
+		// Append YANG_LANGUAGE_SERVER_EXTRA_CLASSPATH to classpath in Windows script
+		windowsScript.text = windowsScript.text.replace(
+			'"%JAVA_EXE%" %DEFAULT_JVM_OPTS%',
+			'if defined YANG_LANGUAGE_SERVER_EXTRA_CLASSPATH set CLASSPATH=%CLASSPATH%;%YANG_LANGUAGE_SERVER_EXTRA_CLASSPATH%\r\n\r\n"%JAVA_EXE%" %DEFAULT_JVM_OPTS%'
+		)
+	}
+}

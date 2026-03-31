@@ -36,7 +36,7 @@ class ResourceValidator extends ResourceValidatorImpl {
 	public static val VALIDATORS = new PreferenceKey('extension.validators', '')
 	
 	override protected validate(Resource resource, CheckMode mode, CancelIndicator monitor, IAcceptor<Issue> acceptor) {
-		val validators = extensionProvider.getExtensions(VALIDATORS, resource, IValidatorExtension)
+		val validators = extensionProvider.getMergedExtensions(VALIDATORS, resource, IValidatorExtension)
 		if (!validators.isNullOrEmpty) {
 			val issueSeverities = issueSeveritiesProvider.getIssueSeverities(resource)
 			val IAcceptor<Issue> wrappedAcceptor = [ issue |
